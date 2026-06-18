@@ -57,7 +57,7 @@ We organize the results around three questions.
 ### 1. Does local sufficiency hold?
 
 <p align="center">
-  <img src="assets/local_sufficiency.png" width="90%" alt="Each point is a trigger step; radius shows the smallest K that contains the LLM’s choice,  and color shows KL divergence.">
+  <img src="assets/local_sufficiency.png" width="80%" alt="Each point is a trigger step; radius shows the smallest K that contains the LLM’s choice,  and color shows KL divergence.">
 </p>
 
 At divergence points, greedy decoding captures the LLM's preferred token only about 30% of the time. However, expanding the candidate set to a compact top-$K$ shortlist dramatically increases coverage.
@@ -81,7 +81,7 @@ The comparable accuracy shows that bounded selection is often sufficient to reco
 ### 3. Can the selection logic be internalized into the SLM?
 
 <p align="center">
-  <img src="assets/s2t_local.png" width="90%" alt="S2T-Local performance results">
+  <img src="assets/s2t_local.png" width="65%" alt="S2T-Local performance results">
 </p>
 
 S2T-Local distills the LLM's selection behavior into the SLM, enabling LLM-free inference.
