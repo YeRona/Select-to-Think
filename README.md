@@ -81,7 +81,7 @@ The comparable accuracy shows that bounded selection is often sufficient to reco
 ### 3. Can the selection logic be internalized into the SLM?
 
 <p align="center">
-  <img src="assets/s2t_local.png" width="65%" alt="S2T-Local performance results">
+  <img src="assets/s2t_local.png" width="55%" alt="S2T-Local performance results">
 </p>
 
 S2T-Local distills the LLM's selection behavior into the SLM, enabling LLM-free inference.
