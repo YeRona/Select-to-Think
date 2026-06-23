@@ -97,7 +97,6 @@ Select-to-Think/
 ├── assets
 ├── configs/
 │   ├── qwen2.5_0.5b.yaml
-│   └── llama3.2_1b.yaml
 ├── scripts/
 │   ├── evaluate_s2t.py
 │   └── train_s2t_local.py
