@@ -57,7 +57,7 @@ We organize the results around three questions.
 ### 1. Does local sufficiency hold?
 
 <p align="center">
-  <img src="assets/local_sufficiency.png" width="80%" alt="Each point is a trigger step; radius shows the smallest K that contains the LLM’s choice,  and color shows KL divergence.">
+  <img src="assets/local_sufficiency.png" width="70%" alt="Each point is a trigger step; radius shows the smallest K that contains the LLM’s choice,  and color shows KL divergence.">
 </p>
 
 At divergence points, greedy decoding captures the LLM's preferred token only about 30% of the time. However, expanding the candidate set to a compact top-$K$ shortlist dramatically increases coverage.
@@ -69,7 +69,7 @@ This suggests that many SLM reasoning failures are not caused by the absence of 
 ### 2. Is selection enough to replace LLM generation?
 
 <p align="center">
-  <img src="assets/takeover_vs_s2t_lineplot.png" width="90%" alt="S2T collaborative performance results">
+  <img src="assets/takeover_vs_s2t_lineplot.png" width="75%" alt="S2T collaborative performance results">
 </p>
 
 We compare S2T with a controlled **Takeover** baseline under the same trigger points. Takeover lets the LLM generate the next token directly, whereas S2T restricts the LLM to selecting from the SLM's candidates.
@@ -81,7 +81,7 @@ The comparable accuracy shows that bounded selection is often sufficient to reco
 ### 3. Can the selection logic be internalized into the SLM?
 
 <p align="center">
-  <img src="assets/s2t_local.png" width="55%" alt="S2T-Local performance results">
+  <img src="assets/s2t_local.png" width="50%" alt="S2T-Local performance results">
 </p>
 
 S2T-Local distills the LLM's selection behavior into the SLM, enabling LLM-free inference.
@@ -105,8 +105,6 @@ Select-to-Think/
 └── README.md
 ```
 
-<!-- ---
-
 ## Installation
 
 ```bash
@@ -123,40 +121,78 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-### Evaluate S2T
+### 1. Evaluate Collaborative S2T
 
 ```bash
 python scripts/evaluate_s2t.py \
-  --student_model Qwen/Qwen2.5-1.5B-Instruct \
-  --teacher_model Qwen/Qwen2.5-32B-Instruct \
-  --dataset math500 \
-  --candidate_size 8 \
-  --trigger_rate 0.01
+  --policy_spec teacher_rerank \
+  --slm_model Qwen/Qwen2.5-1.5B-Instruct \
+  --llm_model Qwen/Qwen2.5-32B-Instruct \
+  --dataset math \
+  --candidate_k 8 \
+  --trigger_quantile 0.99 \
+  --output_dir runs/s2t_eval
 ```
 
-### Evaluate S2T-Local
+Notes:
+- `--dataset math` maps to MATH-500 for evaluation in the current loader.
+- `--trigger_quantile 0.99` approximates a top-1% KL trigger rate after calibration.
+- Use `--policy_spec s2t_local` only after a local selector checkpoint exists.
+
+### 2. Collect S2T-Local Training Groups
 
 ```bash
-python scripts/evaluate_s2t_local.py \
-  --student_model Qwen/Qwen2.5-1.5B-Instruct \
-  --selector_checkpoint checkpoints/s2t_local_qwen2.5_1.5b \
-  --dataset math500 \
-  --candidate_size 8
+python scripts/evaluate_s2t.py \
+  --policy_spec teacher_rerank \
+  --collect_s2t_data \
+  --slm_model Qwen/Qwen2.5-1.5B-Instruct \
+  --llm_model Qwen/Qwen2.5-32B-Instruct \
+  --dataset math \
+  --candidate_k 16 \
+  --num_bins 16 \
+  --trigger_quantile 0.99 \
+  --run_dir runs/s2t_qwen25_1p5b_collect
 ```
 
-### Train S2T-Local
+This writes `runs/s2t_qwen25_1p5b_collect/data/s2t_samples_*.jsonl`.
+
+### 3. Train S2T-Local
 
 ```bash
 python scripts/train_s2t_local.py \
-  --student_model Qwen/Qwen2.5-1.5B-Instruct \
-  --teacher_model Qwen/Qwen2.5-32B-Instruct \
-  --train_dataset math \
-  --candidate_size 16 \
-  --reserved_tokens 16 \
+  --slm_model Qwen/Qwen2.5-1.5B-Instruct \
+  --data_glob "runs/s2t_qwen25_1p5b_collect/data/s2t_samples*.jsonl" \
+  --expected_candidates 16 \
+  --num_bins 16 \
+  --max_length 512 \
+  --loss_mode top1_ce \
+  --teacher_kl_weight 0.1 \
+  --lm_kl_weight 0.1 \
+  --lr 5e-5 \
+  --batch_size 4 \
+  --grad_accum_steps 1 \
+  --num_epochs 3 \
+  --lora_rank 16 \
+  --lora_alpha 32 \
+  --lora_dropout 0.05 \
   --output_dir checkpoints/s2t_local_qwen2.5_1.5b
 ```
 
---- -->
+### 4. Evaluate S2T-Local
+
+```bash
+python scripts/evaluate_s2t.py \
+  --policy_spec s2t_local \
+  --slm_model Qwen/Qwen2.5-1.5B-Instruct \
+  --llm_model Qwen/Qwen2.5-32B-Instruct \
+  --use_s2t_lora \
+  --s2t_lora_ckpt checkpoints/s2t_local_qwen2.5_1.5b \
+  --dataset math \
+  --candidate_k 8 \
+  --num_bins 16 \
+  --trigger_quantile 0.99 \
+  --output_dir runs/s2t_local_eval
+```
 
 ## Citation
 
