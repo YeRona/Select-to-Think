@@ -196,10 +196,11 @@ python scripts/evaluate_s2t.py \
 ## Citation
 
 ```bibtex
-@article{ye2026select,
-  title={Select to Think: Unlocking SLM Potential with Local Sufficiency},
-  author={Ye, Wenxuan and Zhang, Yangyang and An, Xueli and Carle, Georg and Ma, Yunpu},
-  journal={arXiv preprint arXiv:2604.26940},
-  year={2026}
+@inproceedings{ye2026select,
+  title={Select to Think: Unlocking {SLM} Potential with Local Sufficiency},
+  author={Wenxuan Ye and Yangyang Zhang and Xueli An and Georg Carle and Yunpu Ma},
+  booktitle={Forty-third International Conference on Machine Learning},
+  year={2026},
+  url={https://openreview.net/forum?id=9AIG4VatqI}
 }
 ```
